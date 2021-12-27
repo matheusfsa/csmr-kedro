@@ -10,3 +10,17 @@ tweets:
     index_col: [index]
   save_args:
     if_exists: fail
+
+torch_model:
+  type: csmr_kedro.extras.datasets.TorchDataSet
+  model_class: csmr_kedro.models.BertSA
+  filepath: data/06_models/bert_sa.pt
+  device: cpu
+  load_args:
+    model_params:
+      layer_norm: True
+      drop: 0.2
+      seq_length: 128
+      use_company_att: False
+      predict_company: True
+      company_alpha: 0.2
