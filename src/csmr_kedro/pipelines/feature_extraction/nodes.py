@@ -25,22 +25,43 @@
 #
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+This is a boilerplate pipeline 'feature_extraction'
+generated using Kedro 0.17.4
+"""
+from typing import List
+import pandas as pd
+import numpy as np
+from csmr_kedro.models import SADataset
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader
+from transformers import AutoTokenizer 
 
-"""Project pipelines."""
-from typing import Dict
+def get_embedding(
+    df: pd.DataFrame, 
+    model: nn.Module, 
+    device: str,
+    max_length: int) -> pd.DataFrame:
 
-from kedro.pipeline import Pipeline
-from csmr_kedro.pipelines import feature_extraction as fe
-from csmr_kedro.pipelines import data_science as ds
-def register_pipelines() -> Dict[str, Pipeline]:
-    """Register the project's pipelines.
-
-    Returns:
-        A mapping from a pipeline name to a ``Pipeline`` object.
-    """
-    fe_pipeline = fe.create_pipeline()
-    ds_pipeline = ds.create_pipeline()
-    return {
-        "feature_extraction": fe_pipeline,
-        "data_science": ds_pipeline,
-        "__default__": fe_pipeline + ds_pipeline}
+    tokenizer = AutoTokenizer.from_pretrained('neuralmind/bert-base-portuguese-cased', do_lower_case=False)
+    dataset = SADataset(df, tokenizer, max_length)
+    dataloader = DataLoader(dataset, batch_size=64, shuffle=False)
+    model.to(device)
+    model.eval()
+    with torch.no_grad():
+        preds = np.empty((0, 768))
+        Y = np.empty((0,))
+        for i, (x, companies_ids, y) in enumerate(dataloader):
+            x = x.to(device)
+            companies_ids = companies_ids.to(device)
+            y = y.to(device)
+            outputs = model.embedding(x, None)
+            preds = np.append(preds, outputs.cpu().numpy(), axis=0)
+            Y = np.append(Y, y.cpu().numpy(), axis=0)
+            X = pd.DataFrame(data=preds, columns=['f'+str(i+1) for i in range(preds.shape[1])])
+    X.index = df.index
+    X["text"] = df.text
+    X["company"] = df.company
+    X["target"] = Y
+    return X

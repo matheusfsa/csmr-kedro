@@ -31,8 +31,61 @@ This is a boilerplate pipeline 'data_science'
 generated using Kedro 0.17.5
 """
 
+from functools import reduce
+from operator import add
+from os import pipe
 from kedro.pipeline import Pipeline, node
+from kedro.pipeline.modular_pipeline import pipeline
+from .nodes import evaluate_model, get_best_model, model_choice
+from kedro.framework.session.session import get_current_session
 
-
+def search_template(name: str) -> Pipeline:
+    return Pipeline(
+        [
+            node(
+                func=get_best_model,
+                inputs=["train_features",
+                        "model", 
+                        "params:random_state"],
+                outputs="best_model",
+                name=name
+            )
+        ]
+        )
 def create_pipeline(**kwargs):
-    return Pipeline([])
+    try:
+        session = get_current_session()
+        context = session.load_context()
+        catalog = context.catalog
+
+        models = catalog.load("params:models")
+    except:
+        models = ["random_forest", "ada", "xgb"]
+    
+    search_pipelines = [
+        pipeline(
+            pipe=search_template(f"get_best_{model}"),
+            inputs={"model": f"params:models.{model}"},
+            outputs={"best_model": f"best_{model}"}
+        )
+        for model in models
+    ]
+    search_pipeline = reduce(add, search_pipelines)
+
+    choice_pipeline = Pipeline(
+        [
+            node(
+                func=model_choice,
+                inputs=["train_features"] + [f"best_{model}" for model in models],
+                outputs="model",
+                name="model_choice"
+            ),
+            node(
+                func=evaluate_model,
+                inputs=["model", "test_features"],
+                outputs="model_metrics",
+                name="evaluate_model"
+            )
+        ]
+    )
+    return search_pipeline + choice_pipeline

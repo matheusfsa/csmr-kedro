@@ -26,21 +26,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Project pipelines."""
-from typing import Dict
+"""
+This is a boilerplate pipeline 'feature_extraction'
+generated using Kedro 0.17.4
+"""
 
-from kedro.pipeline import Pipeline
-from csmr_kedro.pipelines import feature_extraction as fe
-from csmr_kedro.pipelines import data_science as ds
-def register_pipelines() -> Dict[str, Pipeline]:
-    """Register the project's pipelines.
+from kedro.pipeline import Pipeline, node
+from kedro.pipeline.modular_pipeline import pipeline
+from .nodes import get_embedding
+from functools import reduce
+from operator import add
 
-    Returns:
-        A mapping from a pipeline name to a ``Pipeline`` object.
-    """
-    fe_pipeline = fe.create_pipeline()
-    ds_pipeline = ds.create_pipeline()
-    return {
-        "feature_extraction": fe_pipeline,
-        "data_science": ds_pipeline,
-        "__default__": fe_pipeline + ds_pipeline}
+def feature_extraction_template(name:str) -> Pipeline:
+    return Pipeline(
+        [
+            node(func=get_embedding,
+                inputs=[
+                        "data", 
+                        "torch_model", 
+                        "params:device", 
+                        "params:max_length"],
+                outputs="data_features",
+                name=f"{name}_feature_extraction"),
+        ]
+    )
+
+def create_pipeline(**kwargs):
+    refs = ["train", "test"]
+
+    feature_extraction_pipelines = [
+        pipeline(
+            pipe=feature_extraction_template(data_ref),
+            parameters={},
+            inputs={"data": data_ref},
+            outputs={"data_features": f"{data_ref}_features"}
+        )
+        for data_ref in refs
+    ]
+    all_pipelines = reduce(add, feature_extraction_pipelines)
+    return all_pipelines

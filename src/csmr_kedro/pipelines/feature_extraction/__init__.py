@@ -25,22 +25,9 @@
 #
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+This is a boilerplate pipeline 'feature_extraction'
+generated using Kedro 0.17.4
+"""
 
-"""Project pipelines."""
-from typing import Dict
-
-from kedro.pipeline import Pipeline
-from csmr_kedro.pipelines import feature_extraction as fe
-from csmr_kedro.pipelines import data_science as ds
-def register_pipelines() -> Dict[str, Pipeline]:
-    """Register the project's pipelines.
-
-    Returns:
-        A mapping from a pipeline name to a ``Pipeline`` object.
-    """
-    fe_pipeline = fe.create_pipeline()
-    ds_pipeline = ds.create_pipeline()
-    return {
-        "feature_extraction": fe_pipeline,
-        "data_science": ds_pipeline,
-        "__default__": fe_pipeline + ds_pipeline}
+from .pipeline import create_pipeline  # NOQA

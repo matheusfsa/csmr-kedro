@@ -11,6 +11,26 @@ tweets:
   save_args:
     if_exists: fail
 
+train:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/train.csv
+
+test:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/test.csv
+
+train_features:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/train_features.csv
+
+test_features:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/test_features.csv
+
+tweets_features:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/tweets_features.csv
+
 torch_model:
   type: csmr_kedro.extras.datasets.TorchDataSet
   model_class: csmr_kedro.models.BertSA
@@ -24,3 +44,11 @@ torch_model:
       use_company_att: False
       predict_company: True
       company_alpha: 0.2
+
+model:
+  type: pickle.PickleDataSet
+  filepath: data/06_models/model.pkl
+  
+model_metrics:
+  type: kedro_mlflow.io.metrics.MlflowMetricsDataSet
+  prefix: model_metrics
