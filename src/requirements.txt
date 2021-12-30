@@ -12,3 +12,22 @@ pytest-cov~=2.5
 pytest-mock>=1.7.1, <2.0
 pytest~=6.2
 wheel>=0.35, <0.37
+
+# mlflow
+kedro-mlflow==0.7.6 
+# kedro viz
+kedro-viz==4.2.0 
+
+# aws_s3
+s3fs==2021.11.1 
+
+# data manipulation
+numpy==1.19.5
+pandas==1.2.5
+
+# machine learning
+scikit-learn==0.24.2
+
+# deep learning
+transformers==4.15.0
+torch==1.8.0

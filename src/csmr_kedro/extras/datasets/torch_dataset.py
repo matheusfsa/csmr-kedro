@@ -66,7 +66,12 @@ class TorchDataSet(AbstractVersionedDataSet):
         self._save_args = deepcopy(self.DEFAULT_SAVE_ARGS)
         if save_args is not None:
             self._save_args.update(save_args)
-
+        
+        _fs_open_args_save.setdefault("mode", "w")
+        _fs_open_args_save.setdefault("newline", "")
+        self._fs_open_args_load = _fs_open_args_load
+        self._fs_open_args_save = _fs_open_args_save
+        
         self.device = device
         self.model_class = model_class
         self.model_params  = self._load_args.get("model_params", {})
@@ -82,18 +87,19 @@ class TorchDataSet(AbstractVersionedDataSet):
         )
 
     def _load(self) -> torch.nn.Module:
+        
         model = model_from_string(self.model_class, **self.model_params)
         
         load_path = get_filepath_str(self._get_load_path(), self._protocol)
-        
-        if self.device == "cpu":
-            device = torch.device(self.device)
-            state_dict = torch.load(load_path, map_location=device)
-            model.load_state_dict(state_dict)
-        else:
-            state_dict = torch.load(load_path)
-            model.load_state_dict(state_dict)
-            model.to(self.device)
+        with self._fs.open(load_path, **self._fs_open_args_load) as fs_file:
+            if self.device == "cpu":
+                device = torch.device(self.device)
+                state_dict = torch.load(fs_file, map_location=device)
+                model.load_state_dict(state_dict)
+            else:
+                state_dict = torch.load(fs_file)
+                model.load_state_dict(state_dict)
+                model.to(self.device)
         return model      
 
     def _save(self, data: torch.nn.Module) -> None:

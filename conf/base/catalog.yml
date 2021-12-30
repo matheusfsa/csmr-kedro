@@ -2,39 +2,44 @@
 #
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://kedro.readthedocs.io/en/stable/05_data/01_data_catalog.html
-tweets:
-  type: pandas.SQLTableDataSet
-  credentials: db_sql
-  table_name: tweets
-  load_args:
-    index_col: [index]
-  save_args:
-    if_exists: fail
+# tweets:
+#   type: pandas.SQLTableDataSet
+#  credentials: db_sql
+#  table_name: tweets
+#  load_args:
+#    index_col: [index]
+#  save_args:
+#    if_exists: fail
 
 train:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/train.csv
+  filepath: s3://companies-sm-rep/data/03_primary/train.csv
+  credentials: aws_s3
 
 test:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/test.csv
-
+  filepath: s3://companies-sm-rep/data/03_primary/test.csv
+  credentials: aws_s3
 train_features:
   type: pandas.CSVDataSet
-  filepath: data/05_model_input/train_features.csv
+  filepath: s3://companies-sm-rep/data/05_model_input/train_features.csv
+  credentials: aws_s3
 
 test_features:
   type: pandas.CSVDataSet
-  filepath: data/05_model_input/test_features.csv
+  filepath: s3://companies-sm-rep/data/05_model_input/test_features.csv
+  credentials: aws_s3
 
 tweets_features:
   type: pandas.CSVDataSet
-  filepath: data/05_model_input/tweets_features.csv
+  filepath: s3://companies-sm-rep/data/05_model_input/tweets_features.csv
+  credentials: aws_s3
 
 torch_model:
   type: csmr_kedro.extras.datasets.TorchDataSet
   model_class: csmr_kedro.models.BertSA
-  filepath: data/06_models/bert_sa.pt
+  filepath: s3://companies-sm-rep/data/06_models/bert_sa.pt
+  credentials: aws_s3
   device: cpu
   load_args:
     model_params:
