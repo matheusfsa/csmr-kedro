@@ -37,6 +37,13 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer 
+from csmr_kedro.extras.datasets import COMPANIES
+from tqdm import tqdm
+
+def pre_processing(df: pd.DataFrame):
+    df = df[df.company.isin(COMPANIES)]
+    df = df[~df.text.isna()]
+    return df
 
 def get_embedding(
     df: pd.DataFrame, 
@@ -44,6 +51,7 @@ def get_embedding(
     device: str,
     max_length: int) -> pd.DataFrame:
 
+    
     tokenizer = AutoTokenizer.from_pretrained('neuralmind/bert-base-portuguese-cased', do_lower_case=False)
     dataset = SADataset(df, tokenizer, max_length)
     dataloader = DataLoader(dataset, batch_size=64, shuffle=False)
@@ -52,16 +60,17 @@ def get_embedding(
     with torch.no_grad():
         preds = np.empty((0, 768))
         Y = np.empty((0,))
-        for i, (x, companies_ids, y) in enumerate(dataloader):
-            x = x.to(device)
-            companies_ids = companies_ids.to(device)
-            y = y.to(device)
-            outputs = model.embedding(x, None)
+        for i, batch in tqdm(enumerate(dataloader), total=len(dataloader)):
+            for k in batch:
+                batch[k] = batch[k].to(device)
+            outputs = model.embedding(batch['input_ids'], None)
             preds = np.append(preds, outputs.cpu().numpy(), axis=0)
-            Y = np.append(Y, y.cpu().numpy(), axis=0)
-            X = pd.DataFrame(data=preds, columns=['f'+str(i+1) for i in range(preds.shape[1])])
+            if "label" in batch:
+                Y = np.append(Y, batch['label'].cpu().numpy(), axis=0)
+        X = pd.DataFrame(data=preds, columns=['f'+str(i+1) for i in range(preds.shape[1])])
     X.index = df.index
     X["text"] = df.text
     X["company"] = df.company
-    X["target"] = Y
+    if "label" in df.columns:
+        X["target"] = Y
     return X

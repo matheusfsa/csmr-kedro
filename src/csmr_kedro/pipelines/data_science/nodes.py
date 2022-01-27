@@ -36,13 +36,10 @@ from sklearn.base import BaseEstimator
 from sklearn.metrics import make_scorer, f1_score, mean_squared_error 
 from csmr_kedro.extras.helpers import model_from_string, load_params
 from csmr_kedro.extras.datasets import COMPANIES
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+from csmr_kedro.extras.helpers import preprocess
 
-def preprocess(data: pd.DataFrame):
-    y = data.target
-    for c in COMPANIES:
-        data[f"company_{c}"] = (data.company == c) * 1
-    X = data.drop(columns=["text","company", "target"])
-    return X, y
+
 
 def get_best_model(
     train_data: pd.DataFrame, 
@@ -52,8 +49,8 @@ def get_best_model(
     grid = load_params(model["params"])
     estimator = model_from_string(model["model_class"], model["default_params"])
     cv = KFold(n_splits=2)
-    scorer = make_scorer(mean_squared_error)
-    search = RandomizedSearchCV(estimator, grid, cv=cv, n_jobs=None,scoring=scorer, verbose=2, random_state=random_state, n_iter=1)
+    scorer = make_scorer(accuracy_score)
+    search = RandomizedSearchCV(estimator, grid, cv=cv,scoring=scorer, verbose=2, random_state=random_state, n_iter=1, n_jobs=-1)
     search.fit(X.values, y.values)
     return search.best_estimator_, search.best_score_
 
@@ -69,12 +66,11 @@ def model_choice(
 def evaluate_model(
     model: BaseEstimator, 
     test: pd.DataFrame) -> Dict[str, Union[float, List[float]]]:
-    X_test, y_test = preprocess(test)
+    X_test, y_true = preprocess(test)
     y_pred = model.predict(X_test)
-    y_pred[(y_pred > 0.3) & (y_pred < 0.7)] = 0.5
-    y_pred[y_pred >= 0.7] = 1.0
-    y_pred[y_pred <= 0.3] = 0.0
-    accuracy = (y_pred == y_test).sum()/y_test.shape[0]
     return {
-        "accuracy": {"value": accuracy, "step":1}
+        "accuracy": {"value": accuracy_score(y_true, y_pred), "step":1},
+        "precision": {"value": precision_score(y_true, y_pred, average='weighted'), "step":1},
+        "recall": {"value": recall_score(y_true, y_pred, average='weighted'), "step":1},
+        "f1": {"value": f1_score(y_true, y_pred, average='weighted'), "step":1},
         }

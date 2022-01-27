@@ -11,44 +11,40 @@
 #  save_args:
 #    if_exists: fail
 
+tweets: 
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/tweets.csv
+  
 train:
   type: pandas.CSVDataSet
-  filepath: s3://companies-sm-rep/data/03_primary/train.csv
-  credentials: aws_s3
+  filepath: data/03_primary/train.csv
 
 test:
   type: pandas.CSVDataSet
-  filepath: s3://companies-sm-rep/data/03_primary/test.csv
-  credentials: aws_s3
+  filepath: data/03_primary/test.csv
+
 train_features:
   type: pandas.CSVDataSet
-  filepath: s3://companies-sm-rep/data/05_model_input/train_features.csv
-  credentials: aws_s3
+  filepath: data/05_model_input/train_features.csv
 
 test_features:
   type: pandas.CSVDataSet
-  filepath: s3://companies-sm-rep/data/05_model_input/test_features.csv
-  credentials: aws_s3
+  filepath: data/05_model_input/test_features.csv
 
 tweets_features:
   type: pandas.CSVDataSet
-  filepath: s3://companies-sm-rep/data/05_model_input/tweets_features.csv
-  credentials: aws_s3
+  filepath: data/05_model_input/tweets_features.csv
 
 torch_model:
   type: csmr_kedro.extras.datasets.TorchDataSet
   model_class: csmr_kedro.models.BertSA
-  filepath: s3://companies-sm-rep/data/06_models/bert_sa.pt
-  credentials: aws_s3
+  filepath: data/06_models/pytorch_model.bin
   device: cpu
   load_args:
     model_params:
-      layer_norm: True
-      drop: 0.2
-      seq_length: 128
-      use_company_att: False
-      predict_company: True
-      company_alpha: 0.2
+      predict_company: False 
+      use_company: True
+      company_dim: 32
 
 model:
   type: pickle.PickleDataSet

@@ -17,9 +17,13 @@ wheel>=0.35, <0.37
 kedro-mlflow==0.7.6 
 # kedro viz
 kedro-viz==4.2.0 
-
+# docker
+kedro-docker==0.2.2
 # aws_s3
 s3fs==2021.11.1 
+
+# utils
+tqdm==4.62.3
 
 # data manipulation
 numpy==1.19.5

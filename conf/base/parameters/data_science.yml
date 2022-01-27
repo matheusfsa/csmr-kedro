@@ -7,7 +7,7 @@ random_state: 42
 
 models:
   random_forest:
-    model_class: sklearn.ensemble.RandomForestRegressor
+    model_class: sklearn.ensemble.RandomForestClassifier
     model_name: random_forest
     default_params: null
     params:
@@ -15,8 +15,9 @@ models:
         max_depth: np.append(list(map(int, np.linspace(3, 100, num = 50))), [None])
         min_samples_split: [2, 5, 10,  20]
         min_samples_leaf: [1, 2, 4, 8]
+        n_jobs: [1]
   ada:
-    model_class: sklearn.ensemble.AdaBoostRegressor
+    model_class: sklearn.ensemble.AdaBoostClassifier
     model_name: ada
     default_params: null
     params:

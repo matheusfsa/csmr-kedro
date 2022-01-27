@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import pandas as pd
 from torch.utils.data import Dataset
 import re
@@ -10,7 +11,7 @@ class SADataset(Dataset):
     self.df = cleaning_data(df)
     self.tokenizer = tokenizer
     self.max_length = max_length
-    self.labels = {'Neutral': 0.5, 'Positive': 1, 'Very Positive': 1, 'Negative':0, 'Very Negative': 0}
+    self.labels = {'Very Negative':0, 'Negative': 0, 'Neutral': 1, 'Positive': 2, 'Very Positive': 2}
     self.companies = COMPANIES
     self.encode()
 
@@ -32,8 +33,8 @@ class SADataset(Dataset):
     company_id = self.companies.index(self.df["company"].iloc[idx])
     if 'label' in self.df.columns:
       y = self.labels[self.df['label'].iloc[idx]]
-      return x, company_id, y
-    return x, company_id
+      return {"input_ids":x,  "label":y, "company_id": company_id}
+    return {"input_ids":x, "company_id": company_id}
 
 
 def clean_tweet(text: str) -> str:
@@ -57,8 +58,11 @@ def clean_tweet(text: str) -> str:
         u"\ufe0f"  # dingbats
         u"\u3030"
                       "]+", flags=re.UNICODE)
-
-  text = emoji_pattern.sub('', text)
+  try:
+    text = emoji_pattern.sub('', text)
+  except:
+    print(text)
+    raise ValueError
   #text = text.encode('ascii', 'ignore').decode('ascii')
   links_and_replys = re.compile("(http\S+)|(https\S+)|^(@[A-Za-z0–9_]+ )+")
   text = links_and_replys.sub('', text)

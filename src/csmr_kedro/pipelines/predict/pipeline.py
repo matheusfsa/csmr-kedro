@@ -27,42 +27,18 @@
 # limitations under the License.
 
 """
-This is a boilerplate pipeline 'feature_extraction'
-generated using Kedro 0.17.4
+This is a boilerplate pipeline 'predict'
+generated using Kedro 0.17.5
 """
 
 from kedro.pipeline import Pipeline, node
-from kedro.pipeline.modular_pipeline import pipeline
-from .nodes import get_embedding
-from functools import reduce
-from operator import add
+from .nodes import predict
 
-def feature_extraction_template(name:str) -> Pipeline:
-    return Pipeline(
-        [
-            node(func=get_embedding,
-                inputs=[
-                        "preprocessed_data", 
-                        "torch_model", 
-                        "params:device", 
-                        "params:max_length"],
-                outputs="data_features",
-                name=f"{name}_feature_extraction"),
-        ]
-    )
 
 def create_pipeline(**kwargs):
-    refs = ["train", "test", "tweets"]
-
-    feature_extraction_pipelines = [
-        pipeline(
-            pipe=feature_extraction_template(data_ref),
-            parameters={},
-            inputs={"preprocessed_data": f"preprocessed_{data_ref}",},
-            outputs={
-                "data_features": f"{data_ref}_features"}
-        )
-        for data_ref in refs
-    ]
-    all_pipelines = reduce(add, feature_extraction_pipelines)
-    return all_pipelines
+    return Pipeline([
+        node(func=predict, 
+             inputs=["model", "tweets_features"], 
+             outputs="sentiment_prediction",
+             name="predict")
+    ])
