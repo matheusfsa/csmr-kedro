@@ -10,31 +10,67 @@
 #    index_col: [index]
 #  save_args:
 #    if_exists: fail
-
+################### Raw data ##############################
 tweets: 
   type: pandas.CSVDataSet
   filepath: data/01_raw/tweets.csv
   
 train:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/train.csv
+  filepath: data/01_raw/train.csv
 
 test:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/test.csv
+  filepath: data/01_raw/test.csv
+################### Pre-processed data #####################
+preprocessed_tweets: 
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/preprocessed_tweets.csv
+  
+preprocessed_train:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/preprocessed_train.csv
+
+preprocessed_test:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/preprocessed_test.csv
+
+################## Features ############################
 
 train_features:
   type: pandas.CSVDataSet
-  filepath: data/05_model_input/train_features.csv
+  filepath: data/04_feature/train_features.csv
 
 test_features:
   type: pandas.CSVDataSet
-  filepath: data/05_model_input/test_features.csv
+  filepath: data/04_feature/test_features.csv
 
 tweets_features:
   type: pandas.CSVDataSet
-  filepath: data/05_model_input/tweets_features.csv
+  filepath: data/04_feature/tweets_features.csv
+############### Model Inputs ###########################
 
+X_train:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/X_train.csv
+
+X_test:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/X_test.csv
+
+X_tweets:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/X_tweets.csv
+
+y_train:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/y_train.csv
+
+y_test:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/y_test.csv
+
+############### Models #################################
 torch_model:
   type: csmr_kedro.extras.datasets.TorchDataSet
   model_class: csmr_kedro.models.BertSA
@@ -47,9 +83,16 @@ torch_model:
       company_dim: 32
 
 model:
-  type: pickle.PickleDataSet
-  filepath: data/06_models/model.pkl
-  
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+  data_set:
+      type: kedro_mlflow.io.models.MlflowModelSaverDataSet
+      flavor: mlflow.sklearn
+      filepath: data/06_models/model
+#model:
+#  type: pickle.PickleDataSet
+#  filepath: data/06_models/model.pkl
+
+############### Metrics #################################
 model_metrics:
   type: kedro_mlflow.io.metrics.MlflowMetricsDataSet
   prefix: model_metrics

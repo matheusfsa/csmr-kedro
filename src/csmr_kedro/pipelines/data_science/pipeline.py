@@ -32,19 +32,35 @@ generated using Kedro 0.17.5
 """
 
 from functools import reduce
+from multiprocessing import Pipe
 from operator import add
 from os import pipe
+from xml.etree.ElementTree import PI
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
-from .nodes import evaluate_model, get_best_model, model_choice
+from .nodes import evaluate_model, get_best_model, model_choice, split_X_y
 from kedro.framework.session.session import get_current_session
 
+def split_template(name: str, has_label: bool = True) -> Pipeline:
+    return Pipeline(
+        [   
+            
+            node(
+                func=split_X_y,
+                inputs=["data_features"],
+                outputs=["X", "y"],
+                name=name
+            ),
+        ]
+        )
 def search_template(name: str) -> Pipeline:
     return Pipeline(
-        [
+        [   
+            
             node(
                 func=get_best_model,
-                inputs=["train_features",
+                inputs=["X_train",
+                        "y_train",
                         "model", 
                         "params:random_state"],
                 outputs="best_model",
@@ -61,7 +77,18 @@ def create_pipeline(**kwargs):
         models = catalog.load("params:models")
     except:
         models = ["random_forest", "ada", "xgb"]
-    
+    data_refs = ["train", "test"]
+
+    split_pipelines = [
+        pipeline(
+            pipe=split_template(f"split_{ref}"),
+            inputs={"data_features": f"{ref}_features"},
+            outputs={"X": f"X_{ref}",
+                     "y": f"y_{ref}"}
+        )
+        for ref in data_refs
+    ]
+    split_pipeline = reduce(add, split_pipelines)
     search_pipelines = [
         pipeline(
             pipe=search_template(f"get_best_{model}"),
@@ -76,16 +103,16 @@ def create_pipeline(**kwargs):
         [
             node(
                 func=model_choice,
-                inputs=["train_features"] + [f"best_{model}" for model in models],
+                inputs=["X_train", "y_train"] + [f"best_{model}" for model in models],
                 outputs="model",
                 name="model_choice"
             ),
             node(
                 func=evaluate_model,
-                inputs=["model", "test_features"],
+                inputs=["model", "X_test", "y_test"],
                 outputs="model_metrics",
                 name="evaluate_model"
             )
         ]
     )
-    return search_pipeline + choice_pipeline
+    return split_pipeline + search_pipeline + choice_pipeline

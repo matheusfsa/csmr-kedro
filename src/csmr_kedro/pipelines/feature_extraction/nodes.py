@@ -67,7 +67,7 @@ def get_embedding(
             preds = np.append(preds, outputs.cpu().numpy(), axis=0)
             if "label" in batch:
                 Y = np.append(Y, batch['label'].cpu().numpy(), axis=0)
-        X = pd.DataFrame(data=preds, columns=['f'+str(i+1) for i in range(preds.shape[1])])
+        X = pd.DataFrame(data=preds, columns=['feature_'+str(i+1) for i in range(preds.shape[1])])
     X.index = df.index
     X["text"] = df.text
     X["company"] = df.company

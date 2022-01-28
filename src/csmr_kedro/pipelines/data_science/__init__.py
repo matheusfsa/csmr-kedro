@@ -26,8 +26,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-This is a boilerplate pipeline 'data_science'
-generated using Kedro 0.17.5
+This pipeline is responsible for training machine learning models.
 """
 
 from .pipeline import create_pipeline

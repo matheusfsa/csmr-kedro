@@ -38,9 +38,8 @@ from csmr_kedro.extras.datasets import COMPANIES
 def predict(
     model: BaseEstimator, 
     tweets: pd.DataFrame) -> Dict[str, Union[float, List[float]]]:
-    
-    tweets = tweets[tweets.company.isin(COMPANIES)]
-    X_test = preprocess(tweets)
-    y_pred = model.predict(X_test)
+
+    X = tweets.drop(columns=["text"])
+    y_pred = model.predict(X)
     tweets["target"] = y_pred
     return tweets
