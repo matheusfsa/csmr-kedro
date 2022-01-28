@@ -41,5 +41,6 @@ def predict(
 
     X = tweets.drop(columns=["text"])
     y_pred = model.predict(X)
-    tweets["target"] = y_pred
-    return tweets
+    tweets["sentiment"] = y_pred
+    
+    return tweets[["text", "company", "sentiment"]]

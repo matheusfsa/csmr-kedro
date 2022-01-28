@@ -70,6 +70,10 @@ y_test:
   type: pandas.CSVDataSet
   filepath: data/05_model_input/y_test.csv
 
+sentiment_prediction:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/sentiment_prediction.csv
+  
 ############### Models #################################
 torch_model:
   type: csmr_kedro.extras.datasets.TorchDataSet

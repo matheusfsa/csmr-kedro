@@ -13,10 +13,15 @@ pytest-mock>=1.7.1, <2.0
 pytest~=6.2
 wheel>=0.35, <0.37
 
+# data-viz
+seaborn==0.11.2
+
 # mlflow
-kedro-mlflow==0.7.6 
+kedro-mlflow==0.7.6
+
 # kedro viz
 kedro-viz==4.2.0 
+
 # docker
 kedro-docker==0.2.2
 # aws_s3
