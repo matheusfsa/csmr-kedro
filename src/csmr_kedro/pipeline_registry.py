@@ -49,4 +49,4 @@ def register_pipelines() -> Dict[str, Pipeline]:
         "feature_extraction": fe_pipeline,
         "data_science": ds_pipeline,
         "predict": pred_pipeline,
-        "__default__": pp_pipeline + fe_pipeline + ds_pipeline + pred_pipeline}
+        "__default__":  ds_pipeline + pred_pipeline}
