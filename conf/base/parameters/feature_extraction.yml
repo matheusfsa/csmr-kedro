@@ -5,3 +5,4 @@
 # Link: https://kedro.readthedocs.io/en/0.17.4/04_kedro_project_setup/02_configuration.html#parameters
 device: cpu
 max_length: 128
+batch_size: 64

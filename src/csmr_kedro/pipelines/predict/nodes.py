@@ -39,8 +39,8 @@ def predict(
     model: BaseEstimator, 
     tweets: pd.DataFrame) -> Dict[str, Union[float, List[float]]]:
 
-    X = tweets.drop(columns=["text"])
+    X = tweets.drop(columns=["text", "tweet_id"])
     y_pred = model.predict(X)
     tweets["sentiment"] = y_pred
     
-    return tweets[["text", "company", "sentiment"]]
+    return tweets[["tweet_id", "text", "company", "sentiment"]]

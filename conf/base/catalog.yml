@@ -11,6 +11,12 @@
 #  save_args:
 #    if_exists: fail
 ################### Raw data ##############################
+#tweets_tb:
+#  type: pandas.SQLTableDataSet
+#  credentials: db_sql
+#  table_name: tweets
+#  save_args:
+#    if_exists: replace
 tweets: 
   type: pandas.CSVDataSet
   filepath: data/01_raw/tweets.csv

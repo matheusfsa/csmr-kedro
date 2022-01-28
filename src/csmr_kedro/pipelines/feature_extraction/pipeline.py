@@ -45,7 +45,8 @@ def feature_extraction_template(name:str) -> Pipeline:
                         "preprocessed_data", 
                         "torch_model", 
                         "params:device", 
-                        "params:max_length"],
+                        "params:max_length",
+                        "params:batch_size"],
                 outputs="data_features",
                 name=f"{name}_feature_extraction"),
         ]

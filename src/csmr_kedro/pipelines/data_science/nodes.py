@@ -56,6 +56,8 @@ def split_X_y(
     Return:
     Union[Tuple[pd.DataFrame, pd.Series], pd.DataFrame]: Splited data
     """
+    if "tweet_id" in data.columns:
+        data = data.drop(columns=["tweet_id"])
     if label in data.columns:
         return data.drop(columns=["text", label]), data[label]
     return data.drop(columns=["text"])
@@ -77,9 +79,6 @@ def build_model(
             ("cat", categorical_transformer, categorical_features),
         ]
     )
-
-    
-
     return preprocessor, estimator
 
 def get_best_model(
