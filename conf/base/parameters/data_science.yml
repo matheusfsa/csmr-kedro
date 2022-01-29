@@ -4,7 +4,7 @@
 # Documentation for this file format can be found in "Parameters"
 # Link: https://kedro.readthedocs.io/en/0.17.5/04_kedro_project_setup/02_configuration.html#parameters
 random_state: 42
-
+n_iter: 10
 models:
   random_forest:
     model_class: sklearn.ensemble.RandomForestClassifier
@@ -23,3 +23,9 @@ models:
     params:
         n_estimators: list(map(int, np.linspace(start = 50, stop = 1500, num = 100)))
         learning_rate: stats.loguniform(0.05, 0.3)
+  ridge:
+    model_class: sklearn.linear_model.RidgeClassifier
+    model_name: ridge
+    default_params: null
+    params:
+        alpha: np.linspace(start = 0.1, stop = 5.0, num = 100)

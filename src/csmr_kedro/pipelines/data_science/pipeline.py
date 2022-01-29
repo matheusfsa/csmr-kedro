@@ -62,6 +62,7 @@ def search_template(name: str) -> Pipeline:
                 inputs=["X_train",
                         "y_train",
                         "model", 
+                        "params:n_iter",
                         "params:random_state"],
                 outputs="best_model",
                 name=name
