@@ -85,13 +85,21 @@ def get_best_model(
     X: pd.DataFrame, 
     y: pd.Series,
     model: Dict, 
-    random_state: int) -> Tuple[BaseEstimator, float]:
+    n_iter: int = 2,
+    random_state: int = 42) -> Tuple[BaseEstimator, float]:
     
     preprocessor, estimator = build_model(X, model)
     grid = load_params(model["params"])
     cv = KFold(n_splits=2)
     scorer = make_scorer(accuracy_score)
-    search = RandomizedSearchCV(estimator, grid, cv=cv,scoring=scorer, verbose=2, random_state=random_state, n_iter=1, n_jobs=-1)
+    search = RandomizedSearchCV(estimator, 
+                                grid, 
+                                cv=cv,
+                                scoring=scorer, 
+                                verbose=2, 
+                                random_state=random_state, 
+                                n_iter=n_iter, 
+                                n_jobs=-1)
     X = preprocessor.fit_transform(X)
     search.fit(X, y.values)
     pipe = Pipeline(steps=[

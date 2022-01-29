@@ -17,9 +17,6 @@
 #  table_name: tweets
 #  save_args:
 #    if_exists: replace
-tweets: 
-  type: pandas.CSVDataSet
-  filepath: data/01_raw/tweets.csv
   
 train:
   type: pandas.CSVDataSet
@@ -60,10 +57,6 @@ last_tweets:
       query: marvel
 
 ################### Pre-processed data #####################
-preprocessed_tweets: 
-  type: pandas.CSVDataSet
-  filepath: data/02_intermediate/preprocessed_tweets.csv
-  
 preprocessed_train:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/preprocessed_train.csv
@@ -85,42 +78,39 @@ test_features:
   type: pandas.CSVDataSet
   filepath: data/04_feature/test_features.csv
 
-tweets_features:
-  type: pandas.CSVDataSet
-  filepath: data/04_feature/tweets_features.csv
-
 last_tweets_features:
   type: pandas.CSVDataSet
   filepath: data/04_feature/last_tweets_features.csv
 ############### Model Inputs ###########################
 
 X_train:
-  type: pandas.CSVDataSet
-  filepath: data/05_model_input/X_train.csv
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+  data_set:
+    type: pandas.CSVDataSet
+    filepath: data/05_model_input/X_train.csv
 
 X_test:
-  type: pandas.CSVDataSet
-  filepath: data/05_model_input/X_test.csv
-
-X_tweets:
-  type: pandas.CSVDataSet
-  filepath: data/05_model_input/X_tweets.csv
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+  data_set:
+    type: pandas.CSVDataSet
+    filepath: data/05_model_input/X_test.csv
 
 y_train:
-  type: pandas.CSVDataSet
-  filepath: data/05_model_input/y_train.csv
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+  data_set:
+    type: pandas.CSVDataSet
+    filepath: data/05_model_input/y_train.csv
 
 y_test:
-  type: pandas.CSVDataSet
-  filepath: data/05_model_input/y_test.csv
-
-sentiment_prediction:
-  type: pandas.CSVDataSet
-  filepath: data/07_model_output/sentiment_prediction.csv
+  type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+  data_set:
+    type: pandas.CSVDataSet
+    filepath: data/05_model_input/y_test.csv
 
 last_tweets_prediction:
   type: pandas.CSVDataSet
   filepath: data/07_model_output/last_tweets_prediction.csv
+  
 ############### Models #################################
 torch_model:
   type: csmr_kedro.extras.datasets.TorchDataSet
