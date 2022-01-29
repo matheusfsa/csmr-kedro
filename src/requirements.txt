@@ -40,3 +40,6 @@ scikit-learn==0.24.2
 # deep learning
 transformers==4.15.0
 torch==1.8.0
+
+# data validation
+great_expectations==0.14.4
