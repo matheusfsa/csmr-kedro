@@ -32,13 +32,27 @@ generated using Kedro 0.17.5
 """
 
 from kedro.pipeline import Pipeline, node
-from .nodes import predict
+from .nodes import predict, drop_invalid_samples, feature_extraction
 
 
 def create_pipeline(**kwargs):
     return Pipeline([
-        node(func=predict, 
-             inputs=["model", "tweets_features"], 
-             outputs="sentiment_prediction",
-             name="predict")
+        node(func=drop_invalid_samples,
+                 inputs="last_tweets",
+                 outputs="preprocessed_last_tweets",
+                 name=f"last_tweets_preprocessing"),
+            node(func=feature_extraction,
+                inputs=[
+                        "preprocessed_last_tweets", 
+                        "torch_model", 
+                        "params:device", 
+                        "params:max_length",
+                        "params:batch_size"],
+                outputs="last_tweets_features",
+                name=f"last_tweets_feature_extraction"),
+                
+            node(func=predict, 
+                inputs=["model", "last_tweets_features"], 
+                outputs="last_tweets_prediction",
+                name="predict")
     ])

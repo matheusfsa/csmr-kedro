@@ -32,7 +32,7 @@ generated using Kedro 0.17.5
 """
 
 from kedro.pipeline import Pipeline, node
-from .nodes import drop_invalid_samples
+from .nodes import drop_invalid_samples, feature_extraction
 from kedro.pipeline.modular_pipeline import pipeline
 from functools import reduce
 from operator import add
@@ -43,23 +43,32 @@ def preprocessing_template(name:str) -> Pipeline:
             node(func=drop_invalid_samples,
                  inputs="data",
                  outputs="preprocessed_data",
-                 name=f"{name}_preprocessing")
+                 name=f"{name}_preprocessing"),
+            node(func=feature_extraction,
+                inputs=[
+                        "preprocessed_data", 
+                        "torch_model", 
+                        "params:device", 
+                        "params:max_length",
+                        "params:batch_size"],
+                outputs="data_features",
+                name=f"{name}_feature_extraction"),
         ]
     )
 def create_pipeline(**kwargs):
-    refs = ["train", "test", "tweets"]
+    refs = ["train", "test"]
 
-    feature_extraction_pipelines = [
+    pre_processing_pipelines = [
         pipeline(
             pipe=preprocessing_template(data_ref),
             parameters={},
             inputs={"data": data_ref},
             outputs={
-                "preprocessed_data": f"preprocessed_{data_ref}"
+                "preprocessed_data": f"preprocessed_{data_ref}",
+                "data_features": f"{data_ref}_features"
             }
         )
         for data_ref in refs
     ]
-    all_pipelines = reduce(add, feature_extraction_pipelines)
-    return all_pipelines
-    return Pipeline([])
+    pre_processing_pipeline = reduce(add, pre_processing_pipelines)
+    return pre_processing_pipeline

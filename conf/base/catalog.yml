@@ -28,6 +28,37 @@ train:
 test:
   type: pandas.CSVDataSet
   filepath: data/01_raw/test.csv
+
+last_tweets:
+  type: csmr_kedro.extras.datasets.TwitterDataSet
+  filepath: data/01_raw/last_tweets.csv
+  
+  credentials: twitter_api
+  hours: 24
+  max_tweets_search: 100
+  companies:
+    riot:
+      name: Riot Games
+      query: riot
+    apple:
+      name: Apple
+      query: apple OR iphone
+    nubank:
+      name: Nubank
+      query: nubank
+    magalu:
+      name: Magazine Luiza
+      query: magazine luiza OR magalu  
+    motorola:
+      name: Motorola
+      query: motorola
+    carrefour:
+      name: Carrefour
+      query: carrefour
+    marvel:
+      name: Marvel
+      query: marvel
+
 ################### Pre-processed data #####################
 preprocessed_tweets: 
   type: pandas.CSVDataSet
@@ -41,6 +72,9 @@ preprocessed_test:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/preprocessed_test.csv
 
+preprocessed_last_tweets:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/preprocessed_last_tweets.csv
 ################## Features ############################
 
 train_features:
@@ -54,6 +88,10 @@ test_features:
 tweets_features:
   type: pandas.CSVDataSet
   filepath: data/04_feature/tweets_features.csv
+
+last_tweets_features:
+  type: pandas.CSVDataSet
+  filepath: data/04_feature/last_tweets_features.csv
 ############### Model Inputs ###########################
 
 X_train:
@@ -79,7 +117,10 @@ y_test:
 sentiment_prediction:
   type: pandas.CSVDataSet
   filepath: data/07_model_output/sentiment_prediction.csv
-  
+
+last_tweets_prediction:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/last_tweets_prediction.csv
 ############### Models #################################
 torch_model:
   type: csmr_kedro.extras.datasets.TorchDataSet

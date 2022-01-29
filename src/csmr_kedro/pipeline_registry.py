@@ -30,7 +30,6 @@
 from typing import Dict
 
 from kedro.pipeline import Pipeline
-from csmr_kedro.pipelines import feature_extraction as fe
 from csmr_kedro.pipelines import data_science as ds
 from csmr_kedro.pipelines import predict as pred
 from csmr_kedro.pipelines import pre_processing as pp
@@ -41,13 +40,10 @@ def register_pipelines() -> Dict[str, Pipeline]:
         A mapping from a pipeline name to a ``Pipeline`` object.
     """
     pp_pipeline = pp.create_pipeline()
-    fe_pipeline = fe.create_pipeline()
     ds_pipeline = ds.create_pipeline()
     pred_pipeline = pred.create_pipeline()
     return {
-        "pp": pp_pipeline,
-        "feature_extraction": fe_pipeline,
-        "preprocessing": pp_pipeline + fe_pipeline, 
+        "pre_processing": pp_pipeline, 
         "data_science": ds_pipeline,
         "predict": pred_pipeline,
-        "__default__":  ds_pipeline + pred_pipeline}
+        "__default__":  pp_pipeline + ds_pipeline + pred_pipeline}
